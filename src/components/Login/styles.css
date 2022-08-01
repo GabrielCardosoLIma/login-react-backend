@@ -1,0 +1,35 @@
+.box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgb(39, 39, 39);
+}
+
+.borderForm{
+    box-shadow: 5px 5px 15px 5px rgb(0, 0, 0);
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 5px;
+    padding: 50px 100px 100px 100px;
+    background-color: #fff;
+}
+.user{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.p-alert-success{
+    color: green;
+}
+.p-alert-error{
+    color: red;
+}
+.p-alert-validando{
+    color: rgb(221, 221, 105);
+}
+button{
+    width: 100%;
+}
