@@ -22,8 +22,8 @@ function AuthProvider({ children }) {
   const validatedToken = async () => {
     const valueToken = localStorage.getItem("token");
     const headers = {
-      headers: {
-        Authorization: "Bearer " + valueToken,
+      "headers": {
+        "Authorization": "Bearer " + valueToken,
       },
     };
 
