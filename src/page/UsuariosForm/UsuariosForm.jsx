@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import api from "../../services/api";
 import { useHistory } from "react-router-dom";
 import { UserCircle } from "phosphor-react";
@@ -12,9 +12,12 @@ const initialValue = {
   password: ""
 };
 
-export const UsuariosForm = () => {
+export const UsuariosForm = (props) => {
     
     const history = useHistory();
+
+  const [id] = useState(props.match.params.id);
+  console.log(id);
 
   const [values, setValues] = useState(initialValue);
   const [acao, setAcao] = useState("Novo");
@@ -29,6 +32,43 @@ export const UsuariosForm = () => {
       ...values,
       [e.target.name]: e.target.value
     });
+    useEffect( () => {
+      const getUser = async () => {
+        const valueToken = localStorage.getItem("token");
+        const headers = {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + valueToken
+          },
+        };
+        await api.get("/user/"+id, headers)
+          .then((response) => {
+            console.log(response);
+            if(response.data.users){
+              setValues(response.data.users);
+              setAcao('Editar');
+            } else {
+            setStatus({
+              type: "warning",
+              mensagem: "Usuário não encontrado!!!",
+            })
+          }
+          }).catch((err) => {
+            if (err.response) {
+              setStatus({
+                type: "error",
+                mensagem: err.response.data.mensagem,
+              });
+            } else {
+              setStatus({
+                type: "error",
+                mensagem: "Erro: Tente mais tarde!",
+              });
+            }
+          });
+      }
+      if(id) getUser();
+    }, [id])
 
   const formSubmit = async (e) => {
     e.preventDefault();
@@ -36,35 +76,54 @@ export const UsuariosForm = () => {
     const valueToken = localStorage.getItem("token");
     const headers = {
       "headers": {
-        "content-type": "application/json",
+        "Content-Type": "application/json",
         "Authorization": "Bearer " + valueToken
       },
     };
-    await api.post("/user", values, headers)
-      .then((response) => {
-        // setStatus({ loading: false })
-        setStatus({
-            type: "success",
-            mensagem: response.data.mensagem,
-            loading: false
-          })
-        return history.push("/usuarios")
-      }).catch((err) => {
-        if(err.response){
-            setStatus({
-                type: "error",
-                mensagem: err.response.data.mensagem,
-                loading: false
+    if(!id){
+      await api.post("/user", values, headers)
+          .then( (response) => {
+                  console.log(response);
+                  setStatus({loading: false});
+                  return history.push('/usuarios')
+              }).catch( (err) => {
+                  if(err.response){
+                      setStatus({
+                          type: 'error',
+                          mensagem: err.response.data.mensagem,
+                          loading: false
+                      })
+                  } else {
+                      setStatus({
+                          type: 'error',
+                          mensagem: 'Erro: tente mais tarde...',
+                          loading: false
+                      })
+                  }
               })
-        } else {
-            setStatus({
-              type: "error",
-              mensagem: "Erro: tente mais tarde!",
-              loading: false
-            })
-        }
-      })
-  };
+    } else {
+      await api.put("/user", values, headers)
+          .then( (response) => {
+                  console.log(response);
+                  setStatus({loading: false});
+                  return history.push('/usuarios')
+              }).catch( (err) => {
+                  if(err.response){
+                      setStatus({
+                          type: 'error',
+                          mensagem: err.response.data.mensagem,
+                          loading: false
+                      })
+                  } else {
+                      setStatus({
+                          type: 'error',
+                          mensagem: 'Erro: tente mais tarde...',
+                          loading: false
+                      })
+                  }
+              })
+    }
+}
 
   return (
     <div className="box">
@@ -93,6 +152,7 @@ export const UsuariosForm = () => {
           <Form.Control
             type="name"
             name="name"
+            value={values.name}
             onChange={valorInput}
             placeholder="Digite seu nome"
           />
@@ -102,19 +162,22 @@ export const UsuariosForm = () => {
           <Form.Control
             type="email"
             name="email"
+            value={values.email}
             onChange={valorInput}
             placeholder="Digite seu email"
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Senha:</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            onChange={valorInput}
-            placeholder="Digite sua senha"
-          />
-        </Form.Group>
+        {!id && 
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Senha:</Form.Label>
+            <Form.Control
+              type="password"
+              name="password"
+              onChange={valorInput}
+              placeholder="Digite sua senha"
+            />
+          </Form.Group>
+        } {!id &&
         <Form.Group className="mb-3" controlId="formBasicGender">
           <Form.Label>Sexo:</Form.Label>
           <Form.Control
@@ -124,6 +187,7 @@ export const UsuariosForm = () => {
             placeholder="Digite seu sexo"
           />
         </Form.Group>
+        }
         {status.loading ? (
           <Button variant="Secondary" disabled type="submit">
             Aguarde...

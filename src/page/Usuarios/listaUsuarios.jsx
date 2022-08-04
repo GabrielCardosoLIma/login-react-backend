@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Table from "react-bootstrap/Table";
 import api from "../../services/api";
 import { Container } from "react-bootstrap";
+import Button from 'react-bootstrap/Button';
 import './tabela.css';
 
 export const ListaUsuarios = () => {
@@ -57,6 +58,7 @@ export const ListaUsuarios = () => {
           <th>Name</th>
           <th>Email</th>
           <th>Sexo</th>
+          <th>Funções</th>
         </tr>
       </thead>
       <tbody>
@@ -66,6 +68,14 @@ export const ListaUsuarios = () => {
           <td>{user.name}</td>
           <td>{user.email}</td>
           <td>{user.gender}</td>
+          <td>
+          <Button className="button-warning" variant="warning">
+            <Link className="btnLink" to={"usuarios/editar/"+user.id}>Editar</Link>
+          </Button>
+          <Button variant="danger" onClick={() => handleDelete(user.id)}>
+            Excluir
+          </Button>
+          </td>
         </tr>
 
 

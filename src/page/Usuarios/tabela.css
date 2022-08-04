@@ -8,3 +8,10 @@ body {
     flex-direction: column;
     align-items: center;
 }
+.btnLink{
+    text-decoration: unset;
+}
+.btnLink:hover{
+    color: unset;
+    color: #fff;
+}
