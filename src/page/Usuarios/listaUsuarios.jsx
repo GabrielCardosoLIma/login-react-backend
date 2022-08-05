@@ -5,13 +5,65 @@ import api from "../../services/api";
 import { Container } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
 import './tabela.css';
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 export const ListaUsuarios = () => {
   const [data, setData] = useState([]);
   const [status, setStatus] = useState({
     type: "",
-    mensagem: "",
+    mensagem: ""
   });
+
+  const confirmDelete = (user) => {
+    confirmAlert({
+      title: "CAUTION !!!!",
+      message:
+        "Are you absolutely sure you want to delete section " +
+        user.id +
+        "?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => handleDelete(user.id)
+        },
+        {
+          label: "No",
+          onClick: () => history.push("/usuarios")
+        }
+      ]
+    });
+  };
+
+
+  const handleDelete = async (idUser) => {
+    const valueToken = localStorage.getItem("token");
+    const headers = {
+      "headers": {
+        "Authorization": "Bearer " + valueToken,
+      },
+    }
+    await api.delete("/user/"+idUser, headers)
+    .then((response) => {
+      setStatus({
+        type: "success",
+        mensagem: response.data.mensagem
+      })
+      getUsers();
+    }).catch( (err) => {
+      if (err.response) {
+        setStatus({
+          type: "error",
+          mensagem: err.response.data.mensagem
+        })
+      } else {
+        setStatus({
+          type: 'error',
+          mensagem: "Erro tente mais tarde!!"
+        })
+      }
+    })
+  }
 
   const getUsers = async () => {
     const valueToken = localStorage.getItem("token");
@@ -48,8 +100,6 @@ export const ListaUsuarios = () => {
   return (
     <div className="tabela">
       <Container>
-
-
       <h1>Lista de Usuários</h1>
       <Table striped bordered hover>
       <thead>
@@ -72,7 +122,7 @@ export const ListaUsuarios = () => {
           <Button className="button-warning" variant="warning">
             <Link className="btnLink" to={"usuarios/editar/"+user.id}>Editar</Link>
           </Button>
-          <Button variant="danger" onClick={() => handleDelete(user.id)}>
+          <Button variant="danger" onClick={() => confirmDelete(user)}>
             Excluir
           </Button>
           </td>
